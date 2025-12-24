@@ -59,7 +59,7 @@ jobs:
         cd ..
     
     - name: Upload artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: VideoTranslator-macOS
         path: VideoTranslator_macOS.zip
@@ -127,7 +127,7 @@ jobs:
         Compress-Archive -Path "dist\VideoTranslator" -DestinationPath "VideoTranslator_Windows.zip"
     
     - name: Upload artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: VideoTranslator-Windows
         path: VideoTranslator_Windows.zip
@@ -139,12 +139,12 @@ jobs:
     
     steps:
     - name: Download macOS artifact
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: VideoTranslator-macOS
     
     - name: Download Windows artifact
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: VideoTranslator-Windows
     
