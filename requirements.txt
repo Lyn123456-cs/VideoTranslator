@@ -1,0 +1,22 @@
+# 视频多语言本地化工具 - Python 依赖
+# 安装方法：pip install -r requirements.txt
+
+# 语音识别（使用更快的版本）
+faster-whisper>=1.0.0
+# openai-whisper  # 已替换为 faster-whisper（速度快5倍，免费）
+
+# 字幕处理
+srt
+
+# 翻译
+googletrans==4.0.0rc1
+
+# 文本转语音（TTS）
+edge-tts
+gtts  # 备用TTS引擎
+
+# 音频处理
+pydub
+
+# ffmpeg-python（可选，用于 Python 接口）
+ffmpeg-python

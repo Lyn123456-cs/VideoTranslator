@@ -1,0 +1,64 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+*.spec
+*.egg
+MANIFEST
+
+# Virtual Environment
+venv/
+venv_gui/
+env/
+ENV/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+audio_tmp.wav
+
+# Output files (generated videos/subtitles)
+*_original.srt
+*_translated.srt
+*_*_voiceover.mp3
+*_final.mp4
+*_final_audio.aac
+output*/
+temp*/
+
+# macOS
+.DS_Store
+Icon
+
+# Test files
+test_*
+adhd_*
+
+# Large files (packaged apps)
+*.zip
+*.dmg
+*.pkg
+
+# Model files (downloaded at runtime)
+*.pt
+*.pth
+models/
+
+# Config (may contain sensitive info)
+config.json

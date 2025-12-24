@@ -1,0 +1,196 @@
+name: Build VideoTranslator
+
+on:
+  push:
+    tags:
+      - 'v*'  # 当推送v开头的标签时触发
+
+jobs:
+  build-macos:
+    name: Build macOS
+    runs-on: macos-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install PyQt6 pyinstaller
+    
+    - name: Build macOS app
+      run: |
+        pyinstaller --name="VideoTranslator" \
+          --windowed \
+          --add-data="s1_transcribe.py:." \
+          --add-data="s2_translate.py:." \
+          --add-data="s3_generate_voiceover.py:." \
+          --add-data="s5_burn_subtitles_simple.py:." \
+          --add-data="video_processor.py:." \
+          --add-data="config_manager.py:." \
+          --add-data="multilang_fast_parallel.py:." \
+          --add-data="README_GUI.md:." \
+          --hidden-import=faster_whisper \
+          --hidden-import=PyQt6 \
+          --hidden-import=PyQt6.QtCore \
+          --hidden-import=PyQt6.QtGui \
+          --hidden-import=PyQt6.QtWidgets \
+          --hidden-import=edge_tts \
+          --hidden-import=gtts \
+          --hidden-import=googletrans \
+          --hidden-import=srt \
+          --collect-all=faster_whisper \
+          --collect-all=whisper \
+          --collect-all=edge_tts \
+          --collect-all=gtts \
+          gui_app_v1.py
+    
+    - name: Create ZIP
+      run: |
+        cd dist
+        zip -r ../VideoTranslator_macOS.zip VideoTranslator.app
+        cd ..
+    
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: VideoTranslator-macOS
+        path: VideoTranslator_macOS.zip
+
+  build-windows:
+    name: Build Windows
+    runs-on: windows-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install PyQt6 pyinstaller
+    
+    - name: Build Windows app
+      run: |
+        pyinstaller --name="VideoTranslator" `
+          --windowed `
+          --add-data="s1_transcribe.py;." `
+          --add-data="s2_translate.py;." `
+          --add-data="s3_generate_voiceover.py;." `
+          --add-data="s5_burn_subtitles_simple.py;." `
+          --add-data="video_processor.py;." `
+          --add-data="config_manager.py;." `
+          --add-data="multilang_fast_parallel.py;." `
+          --add-data="README_GUI.md;." `
+          --hidden-import=faster_whisper `
+          --hidden-import=PyQt6 `
+          --hidden-import=PyQt6.QtCore `
+          --hidden-import=PyQt6.QtGui `
+          --hidden-import=PyQt6.QtWidgets `
+          --hidden-import=edge_tts `
+          --hidden-import=gtts `
+          --hidden-import=googletrans `
+          --hidden-import=srt `
+          --collect-all=faster_whisper `
+          --collect-all=whisper `
+          --collect-all=edge_tts `
+          --collect-all=gtts `
+          gui_app_v1.py
+    
+    - name: Create usage guide
+      run: |
+        echo "====================================" > dist/VideoTranslator/使用说明.txt
+        echo "VideoTranslator Windows版使用指南" >> dist/VideoTranslator/使用说明.txt
+        echo "====================================" >> dist/VideoTranslator/使用说明.txt
+        echo "" >> dist/VideoTranslator/使用说明.txt
+        echo "运行方法：双击 VideoTranslator.exe 启动" >> dist/VideoTranslator/使用说明.txt
+        echo "" >> dist/VideoTranslator/使用说明.txt
+        echo "系统要求：Windows 10/11 (64位) + FFmpeg" >> dist/VideoTranslator/使用说明.txt
+        echo "" >> dist/VideoTranslator/使用说明.txt
+        echo "安装FFmpeg：https://github.com/BtbN/FFmpeg-Builds/releases" >> dist/VideoTranslator/使用说明.txt
+    
+    - name: Create ZIP
+      run: |
+        Compress-Archive -Path "dist\VideoTranslator" -DestinationPath "VideoTranslator_Windows.zip"
+    
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: VideoTranslator-Windows
+        path: VideoTranslator_Windows.zip
+
+  release:
+    name: Create Release
+    needs: [build-macos, build-windows]
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Download macOS artifact
+      uses: actions/download-artifact@v3
+      with:
+        name: VideoTranslator-macOS
+    
+    - name: Download Windows artifact
+      uses: actions/download-artifact@v3
+      with:
+        name: VideoTranslator-Windows
+    
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          VideoTranslator_macOS.zip
+          VideoTranslator_Windows.zip
+        body: |
+          ## 🎉 VideoTranslator ${{ github.ref_name }}
+          
+          ### 📦 下载
+          
+          - **Mac用户**: 下载 `VideoTranslator_macOS.zip`
+          - **Windows用户**: 下载 `VideoTranslator_Windows.zip`
+          
+          ### ✨ 功能特性
+          
+          - ✅ 支持16种语言翻译
+          - ✅ 自动字幕提取（Whisper AI）
+          - ✅ 智能配音生成（Edge TTS + gTTS）
+          - ✅ 并行处理提升速度
+          - ✅ 音量标准化
+          
+          ### 📝 使用说明
+          
+          #### Mac用户
+          1. 解压 `VideoTranslator_macOS.zip`
+          2. 拖拽 `VideoTranslator.app` 到应用程序文件夹
+          3. 安装FFmpeg: `brew install ffmpeg`
+          4. 启动VideoTranslator
+          
+          #### Windows用户
+          1. 解压 `VideoTranslator_Windows.zip`
+          2. 安装FFmpeg（参考压缩包内说明）
+          3. 双击 `VideoTranslator.exe`
+          
+          ### ⚠️ 注意事项
+          
+          - 首次运行需要下载Whisper模型（~150MB）
+          - Mac首次运行可能提示"无法验证开发者"，请在"安全性与隐私"中允许
+          - Windows首次运行可能被Defender拦截，点击"更多信息" → "仍要运行"
+          
+          ### 🐛 问题反馈
+          
+          如遇到问题，请在Issues中反馈
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
