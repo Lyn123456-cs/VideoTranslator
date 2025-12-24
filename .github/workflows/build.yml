@@ -5,6 +5,9 @@ on:
     tags:
       - 'v*'  # 当推送v开头的标签时触发
 
+permissions:
+  contents: write
+
 jobs:
   build-macos:
     name: Build macOS
